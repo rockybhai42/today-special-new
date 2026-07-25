@@ -1,14 +1,11 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// Staff-facing dashboard runs on regular, current browsers — no legacy
-// build needed here (that requirement is specific to the TV player, which
-// must run on old webOS Chromium).
+// Deliberately separate from vite.config.js: the legacy build plugin there
+// targets old webOS Chromium at build time and has no bearing on how tests
+// run under Node/jsdom.
 export default defineConfig({
   plugins: [react()],
-  server: {
-    port: 5173,
-  },
   test: {
     environment: 'jsdom',
     globals: true,

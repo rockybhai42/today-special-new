@@ -15,6 +15,11 @@ const config = {
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
   mediaBaseUrl: process.env.MEDIA_BASE_URL || 'http://localhost:5000',
+  // Lets the test suite redirect uploads to a throwaway directory instead of
+  // writing into the real uploads/ folder used by the dev server.
+  uploadsDir: process.env.UPLOADS_DIR
+    ? path.resolve(process.env.UPLOADS_DIR)
+    : path.resolve(__dirname, '..', 'uploads'),
   frontendUrls: (process.env.FRONTEND_URL || 'http://localhost:5173')
     .split(',')
     .map((url) => url.trim())

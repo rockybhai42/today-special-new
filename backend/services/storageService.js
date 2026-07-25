@@ -10,7 +10,7 @@ const logger = require('../utils/logger');
  * no changes outside this module.
  */
 
-const UPLOADS_ROOT = path.resolve(__dirname, '..', 'uploads');
+const UPLOADS_ROOT = config.uploadsDir;
 const IMAGES_DIR = path.join(UPLOADS_ROOT, 'images');
 const VIDEOS_DIR = path.join(UPLOADS_ROOT, 'videos');
 const TMP_DIR = path.join(UPLOADS_ROOT, 'tmp');
