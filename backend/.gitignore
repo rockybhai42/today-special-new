@@ -1,0 +1,9 @@
+node_modules/
+.env
+uploads/images/*
+uploads/videos/*
+uploads/tmp/*
+!uploads/images/.gitkeep
+!uploads/videos/.gitkeep
+!uploads/tmp/.gitkeep
+*.log

@@ -1,0 +1,23 @@
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  /* Signage runs untouched for weeks; nothing here should ever be selectable or draggable. */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+img,
+video {
+  -webkit-user-drag: none;
+}
