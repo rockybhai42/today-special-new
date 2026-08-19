@@ -1,5 +1,4 @@
 const path = require('path');
-const fs = require('fs/promises');
 const Special = require('../models/Special');
 const storageService = require('../services/storageService');
 const ffmpegService = require('../services/ffmpegService');
@@ -17,14 +16,13 @@ async function uploadImage(req, res, next) {
       return failure(res, 400, 'No image file provided');
     }
 
-    const destPath = path.join(storageService.IMAGES_DIR, req.file.filename);
-    await fs.rename(req.file.path, destPath);
+    const mediaUrl = await storageService.persistFinalMedia(req.file.path, 'image', req.file.filename);
 
     logger.info('Image uploaded', { filename: req.file.filename });
 
     return success(res, 201, {
       mediaType: 'image',
-      mediaUrl: storageService.absoluteUrlFor('image', req.file.filename),
+      mediaUrl,
       conversionStatus: 'not_applicable',
     }, 'Image uploaded');
   } catch (err) {
@@ -47,29 +45,31 @@ async function uploadVideo(req, res, next) {
     }
 
     const outputFilename = `${path.parse(req.file.filename).name}.mp4`;
-    const destPath = path.join(storageService.VIDEOS_DIR, outputFilename);
-
     const ffmpegAvailable = await ffmpegService.isAvailable();
 
     if (!ffmpegAvailable) {
       logger.warn('FFmpeg not installed — serving original upload unconverted', {
         filename: req.file.filename,
       });
-      await fs.rename(rawPath, destPath);
+
+      const mediaUrl = await storageService.persistFinalMedia(rawPath, 'video', outputFilename);
 
       return success(res, 201, {
         mediaType: 'video',
-        mediaUrl: storageService.absoluteUrlFor('video', outputFilename),
+        mediaUrl,
         conversionStatus: 'skipped_ffmpeg_unavailable',
       }, 'Video uploaded (FFmpeg unavailable — not normalized)');
     }
 
-    await ffmpegService.convertToWebCompatible(rawPath, destPath);
+    const convertedTmpPath = path.join(storageService.TMP_DIR, outputFilename);
+    await ffmpegService.convertToWebCompatible(rawPath, convertedTmpPath);
     await storageService.removeFile(rawPath);
+
+    const mediaUrl = await storageService.persistFinalMedia(convertedTmpPath, 'video', outputFilename);
 
     return success(res, 201, {
       mediaType: 'video',
-      mediaUrl: storageService.absoluteUrlFor('video', outputFilename),
+      mediaUrl,
       conversionStatus: 'converted',
     }, 'Video uploaded and normalized');
   } catch (err) {

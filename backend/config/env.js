@@ -24,6 +24,19 @@ const config = {
     .split(',')
     .map((url) => url.trim())
     .filter(Boolean),
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
+    apiKey: process.env.CLOUDINARY_API_KEY || '',
+    apiSecret: process.env.CLOUDINARY_API_SECRET || '',
+  },
 };
+
+// Cloud storage is opt-in: when all three Cloudinary vars are set (intended
+// for production, where the local filesystem is ephemeral), final media is
+// persisted to Cloudinary instead of disk. Unset in dev/test — no external
+// network calls, no Cloudinary account needed to run the app locally.
+config.useCloudStorage = Boolean(
+  config.cloudinary.cloudName && config.cloudinary.apiKey && config.cloudinary.apiSecret
+);
 
 module.exports = config;

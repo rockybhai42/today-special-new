@@ -45,6 +45,10 @@ app.use(
   })
 );
 
+app.get('/health', openCors, (req, res) => {
+  res.json({ status: 'ok', uptime: process.uptime() });
+});
+
 app.use('/api/auth', restrictedCors, authRoutes);
 app.use('/api/specials', restrictedCors, apiLimiter, specialRoutes);
 app.use('/', openCors, publicRoutes);

@@ -6,11 +6,28 @@ const logger = require('../utils/logger');
  * Normalizes every uploaded video to the profile required by LG webOS /
  * Android TV players: MP4, H.264 (Main, Level 4.0), AAC-LC, 1920x1080, 30fps.
  *
- * FFmpeg is not guaranteed to be installed on every dev machine. When it's
- * missing, `isAvailable()` reports false and callers fall back to serving
- * the original upload unconverted (logged as a warning) instead of
- * crashing the upload flow. Install FFmpeg and this path activates with
- * no code changes.
+ * Most Node hosts (e.g. Render's standard web service) don't ship an ffmpeg
+ * binary and don't grant apt/root access to install one. @ffmpeg-installer/ffmpeg
+ * ships a static per-platform binary as a regular npm dependency, so this
+ * works the same in local dev and in production with no Docker/infra needed.
+ * If that package is ever removed, this falls back to the `ffmpeg` on PATH.
+ */
+let ffmpegBinaryPath = 'ffmpeg';
+try {
+  const ffmpegInstaller = require('@ffmpeg-installer/ffmpeg');
+  ffmpeg.setFfmpegPath(ffmpegInstaller.path);
+  ffmpegBinaryPath = ffmpegInstaller.path;
+} catch (err) {
+  logger.warn('@ffmpeg-installer/ffmpeg not available — falling back to system ffmpeg on PATH', {
+    error: err.message,
+  });
+}
+
+/**
+ * FFmpeg is still not guaranteed to work on every machine (e.g. an
+ * unsupported architecture). When it's missing, `isAvailable()` reports
+ * false and callers fall back to serving the original upload unconverted
+ * (logged as a warning) instead of crashing the upload flow.
  */
 
 let availabilityCache = null;
@@ -20,7 +37,7 @@ function isAvailable() {
     return Promise.resolve(availabilityCache);
   }
   return new Promise((resolve) => {
-    execFile('ffmpeg', ['-version'], (err) => {
+    execFile(ffmpegBinaryPath, ['-version'], (err) => {
       availabilityCache = !err;
       resolve(availabilityCache);
     });

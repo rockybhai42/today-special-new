@@ -12,7 +12,9 @@
     "test": "cross-env NODE_ENV=test UPLOADS_DIR=tests/tmp-uploads jest --runInBand"
   },
   "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "bcrypt": "^5.1.1",
+    "cloudinary": "^2.5.1",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
