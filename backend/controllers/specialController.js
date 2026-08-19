@@ -61,7 +61,12 @@ async function uploadVideo(req, res, next) {
       }, 'Video uploaded (FFmpeg unavailable — not normalized)');
     }
 
-    const convertedTmpPath = path.join(storageService.TMP_DIR, outputFilename);
+    // Must differ from rawPath, which also lives in TMP_DIR — when the
+    // original upload already has a .mp4 extension (the common case),
+    // outputFilename alone would collide with the input filename and
+    // FFmpeg refuses to write a file it's still reading ("Output same as
+    // Input #0 - exiting").
+    const convertedTmpPath = path.join(storageService.TMP_DIR, `converted-${outputFilename}`);
     await ffmpegService.convertToWebCompatible(rawPath, convertedTmpPath);
     await storageService.removeFile(rawPath);
 
