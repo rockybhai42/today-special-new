@@ -15,6 +15,13 @@ const { apiLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
 
+// Render (and most hosts) sit the app behind their own reverse proxy, which
+// adds X-Forwarded-For. Without this, express-rate-limit refuses to trust
+// that header (ERR_ERL_UNEXPECTED_X_FORWARDED_FOR) since a client could
+// otherwise spoof it — trusting exactly one hop here is safe because that
+// header is set by Render's own edge, not directly by the client.
+app.set('trust proxy', 1);
+
 app.use(
   helmet({
     // Media is served here and consumed cross-origin by TV players on
