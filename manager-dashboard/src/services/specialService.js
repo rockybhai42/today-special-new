@@ -49,6 +49,10 @@ export async function uploadMedia(mediaType, file, onProgress) {
 
   const { data } = await api.post(endpoint, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
+    // Overrides the client's 15s default — video upload waits through
+    // server-side FFmpeg normalization (plus a possible free-tier host
+    // cold-start) before responding, which routinely exceeds 15s.
+    timeout: mediaType === 'video' ? 180000 : 30000,
     onUploadProgress: (evt) => {
       if (!onProgress || !evt.total) return;
       onProgress(Math.round((evt.loaded / evt.total) * 100));
