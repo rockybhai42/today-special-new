@@ -57,6 +57,13 @@ function convertToWebCompatible(inputPath, outputPath) {
         '-profile:v main',
         '-level 4.0',
         '-r 30',
+        // Default (medium) encoding speed was taking 40s+ for a real short
+        // clip on constrained hosting CPU, exceeding the platform's own
+        // gateway timeout before the request could finish. veryfast trades
+        // some compression efficiency (slightly larger files at the same
+        // quality) for a large encode-time reduction — a reasonable
+        // tradeoff for short signage clips.
+        '-preset veryfast',
         '-vf scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2',
         '-movflags +faststart',
       ])
